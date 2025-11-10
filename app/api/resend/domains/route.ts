@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 // GET /api/resend/domains - Get domain details and DNS records
 export async function GET() {
   try {
@@ -15,6 +13,8 @@ export async function GET() {
         message: "Resend API key not configured. Please add RESEND_API_KEY to your environment variables."
       });
     }
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     const fromEmail = process.env.NOTIFICATION_FROM_EMAIL ?? "no-reply@localhost";
     const emailDomain = fromEmail.includes("@") ? fromEmail.split("@")[1] : undefined;

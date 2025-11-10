@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 // POST /api/resend/domains/verify - Trigger domain verification
 export async function POST() {
   try {
+    if (!process.env.RESEND_API_KEY) {
+      return NextResponse.json(
+        { error: "Resend API key not configured" },
+        { status: 500 }
+      );
+    }
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
     const fromEmail = process.env.NOTIFICATION_FROM_EMAIL ?? "no-reply@localhost";
     const emailDomain = fromEmail.includes("@") ? fromEmail.split("@")[1] : undefined;
 
