@@ -47,6 +47,15 @@ TWILIO_FROM_NUMBER="+1YOUR_TWILIO_PHONE_NUMBER"
 2. Set the environment variables in Vercel dashboard
 3. Deploy from the main branch
 
+### If build fails: "STRIPE_SECRET_KEY or STRIPE_SECRET_KEY_NEW is not set"
+
+Add in Vercel → Project → Settings → Environment Variables (for Production, Preview, Development):
+
+- **STRIPE_SECRET_KEY** — Use your Stripe secret key, or a placeholder for build only (e.g. `sk_test_placeholder`) if you use Square only and don't need Stripe.
+- **STRIPE_SECRET_KEY_NEW** — Optional; only if you use key rotation.
+
+Then redeploy.
+
 ## Manual Environment Setup
 
 Copy `.env.production` to your deployment platform or use the individual variables above.

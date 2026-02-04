@@ -3,6 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   outputFileTracingRoot: __dirname,
 
+  // Build-time fallback so Stripe env checks don't fail when only using Square
+  env: {
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ?? "sk_test_build_placeholder",
+    STRIPE_SECRET_KEY_NEW: process.env.STRIPE_SECRET_KEY_NEW ?? "",
+  },
+
   // Security headers
   async headers() {
     return [
