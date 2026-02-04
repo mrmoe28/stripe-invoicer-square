@@ -1,5 +1,13 @@
 import type { NextConfig } from "next";
 
+// Ensure Stripe env vars exist during build (e.g. Vercel) so "Collecting page data" does not throw
+if (typeof process.env.STRIPE_SECRET_KEY === "undefined" || process.env.STRIPE_SECRET_KEY === "") {
+  process.env.STRIPE_SECRET_KEY = "sk_test_build_placeholder";
+}
+if (typeof process.env.STRIPE_SECRET_KEY_NEW === "undefined") {
+  process.env.STRIPE_SECRET_KEY_NEW = "";
+}
+
 const nextConfig: NextConfig = {
   outputFileTracingRoot: __dirname,
 
