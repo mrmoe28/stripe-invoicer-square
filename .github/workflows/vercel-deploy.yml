@@ -1,7 +1,7 @@
 # Trigger Vercel deployment when push to main doesn't auto-deploy
 # Requires: Add your Vercel Deploy Hook URL as repo secret VERCEL_DEPLOY_HOOK_URL
 # Create hook: Vercel Project → Settings → Git → Deploy Hooks → Create Hook (e.g. "GitHub Action") → copy URL
-# Repo: https://github.com/mrmoe28/stripe-invoicer-square
+# Repo: https://github.com/mrmoe28/stripe-invoicer-square (main branch)
 
 name: Trigger Vercel deployment
 
