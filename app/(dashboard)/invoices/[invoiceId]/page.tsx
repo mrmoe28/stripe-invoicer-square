@@ -79,7 +79,9 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   const subtotal = Number(invoice.subtotal ?? 0);
   const total = Number(invoice.total ?? subtotal);
   const depositAmount = Number(invoice.depositAmount ?? 0);
-  const remainingBalance = Math.max(total - depositAmount, 0);
+  const succeededPayments = (invoice as { payments?: { id: string; amount: unknown; method: string | null; processedAt: Date | null; status: string }[] }).payments?.filter((p) => p.status === "SUCCEEDED") ?? [];
+  const totalPaid = succeededPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+  const remainingBalance = Math.max(total - totalPaid, 0);
 
   return (
     <div className="space-y-6">
@@ -100,6 +102,11 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
             </Link>
             <SendInvoiceButton invoiceId={invoice.id} disabled={invoice.customer.email == null && invoice.customer.phone == null} />
             <Badge variant={statusVariant[invoice.status]}>{statusCopy[invoice.status]}</Badge>
+            <InvoiceStatusActions
+              invoiceId={invoice.id}
+              currentStatus={invoice.status}
+              paymentLinkUrl={invoice.paymentLinkUrl}
+            />
             {invoice.status !== InvoiceStatus.PAID && (
               <PartialPaymentButton
                 invoiceId={invoice.id}
@@ -107,11 +114,6 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                 currency={invoice.currency ?? undefined}
               />
             )}
-            <InvoiceStatusActions
-              invoiceId={invoice.id}
-              currentStatus={invoice.status}
-              paymentLinkUrl={invoice.paymentLinkUrl}
-            />
           </div>
         </CardHeader>
       </Card>
@@ -173,6 +175,50 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                   <dd>{invoice.paidNotifiedAt ? formatDateTime(invoice.paidNotifiedAt) : "Pending"}</dd>
                 </div>
               </dl>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Payments</CardTitle>
+              <CardDescription>
+                Record and view payments for this invoice.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {succeededPayments.length > 0 ? (
+                <>
+                  <dl className="space-y-2 text-sm">
+                    {succeededPayments.map((p) => (
+                      <div key={p.id} className="flex justify-between gap-4">
+                        <dt className="text-muted-foreground">
+                          {formatCurrency(Number(p.amount))}
+                          {p.method ? ` · ${p.method}` : ""}
+                        </dt>
+                        <dd>{p.processedAt ? formatDate(p.processedAt) : "—"}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <div className="border-t pt-3 text-sm">
+                    <div className="flex justify-between gap-4 font-medium">
+                      <span className="text-muted-foreground">Total paid</span>
+                      <span>{formatCurrency(totalPaid)}</span>
+                    </div>
+                    <div className="flex justify-between gap-4 font-medium">
+                      <span className="text-muted-foreground">Remaining</span>
+                      <span>{formatCurrency(remainingBalance)}</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">No payments recorded yet.</p>
+              )}
+              {invoice.status !== InvoiceStatus.PAID && (
+                <PartialPaymentButton
+                  invoiceId={invoice.id}
+                  invoiceTotal={total}
+                  currency={invoice.currency ?? undefined}
+                />
+              )}
             </CardContent>
           </Card>
           <Card>
